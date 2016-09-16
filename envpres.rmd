@@ -18,7 +18,8 @@ output:
 
 
 ```{r setup, cache=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(cache=TRUE, echo=FALSE, warning=FALSE, message=FALSE,
+library(knitr)
+opts_chunk$set(cache=TRUE, echo=FALSE, warning=FALSE, message=FALSE,
   fig.width=10, fig.height=6, dpi=150, fig.align='center',
   dev.args=list(family='serif', pointsize=21, bg = '#f7f2d300'))
 library(EnvStats)
@@ -253,9 +254,10 @@ RI [@singh02]
 
 ## Non-Detects
 
-- Data come form chemical analyses
+- Data come from chemical analyses
 - Labs censor values below a detection limit (DL)
-- Report DL instead of result -- We don't have real numbers!
+- Report DL instead of result
+    - We don't have real numbers!
 
 
 ## Problems Estimating Variability
@@ -272,6 +274,15 @@ means <- tapply(df$Concentration, ifelse(df$Sample < 1.5, 'Raw', 'Censored'),
 sds <- tapply(df$Concentration, ifelse(df$Sample < 1.5, 'Raw', 'Censored'),
               sd)[c('Raw', 'Censored')]
 ucls <- means + qt(0.95, 19) * sds / sqrt(20)
+mean2 <- mean(ifelse(fake1 < 4, 2, fake1))
+sd2 <- sd(ifelse(fake1 < 4, 2, fake1))
+ucl2 <- mean2 + qt(0.95, 19) * sd2 / sqrt(20)
+km <- enparCensored(df$Concentration[df$Sample > 1.5],
+                    df$cens[df$Sample > 1.5],
+                    ci = TRUE, ci.type = 'upper')
+cohen <- enormCensored(df$Concentration[df$Sample > 1.5],
+                       df$cens[df$Sample > 1.5],
+                       ci = TRUE, ci.type = 'upper')
 par(mar = c(4.1, 4.1, 4.1, 4.1), bty = 'n')
 plot(Concentration ~ Sample, data = df,
      pch = ifelse(df$cens, 6, 19), col = ifelse(df$cens, 'red', 'blue'),
@@ -285,14 +296,52 @@ axis(3, at = 1:2, tick = FALSE, labels = paste0('mean = ', round(means, 3),
 
 ## Accounting for Non-Detects
 
+- Simple substitutions (DL/2)
 - Several MLEs
     - Must assume a distribution
-- One decent nonparametric method
+- One decent nonparametric method -- Kaplan-Meier [@helselbook]
     - Debate about implementation
 - Non-detects really a data quality issue
 
 
+## Accounting for Non-Detects
+
+```{r nd2}
+dfu <- data.frame(Mean = c(means, mean2, km$parameters['mean'],
+                           cohen$parameters['mean']),
+                  SD = c(sds, sd2, km$parameters['sd'],
+                         cohen$parameters['sd']),
+                  tUCL = c(ucls, ucl2,
+                              km$interval$limits['UCL'],
+                              cohen$interval$limits['UCL']),
+                  row.names = c('Raw', 'DL', 'DL/2', 'Kaplan-Meier', 'Normal MLE'))
+colnames(dfu)[3] <- '_t-UCL_'
+kable(dfu, digits = 3)
+```
+
+
 ## Detection Limits are Complicated
+
+```{r nd3}
+par(mar = c(4.1, 7.1, 2.1, 7.1))
+set.seed(5161)
+weird <- rnorm(20, 0.1, 0.01) * c(rep(1, 19), 0.01)
+qqnorm(weird, pch = 6, col = 'red', bty = 'n')
+qqline(weird, lty = 3)
+```
+
+## Detection Limits are Complicated
+
+```{r nd4}
+par(mar = c(4.1, 7.1, 2.1, 7.1))
+x.coord <- rep(c(1, 3, 2, 4), 5)
+y.coord <- rep(1:10, each = 2)
+weird.order <- sort(weird)
+weird.order[c(1, 3)] <- weird.order[c(3, 1)]
+weird.colors <- rgb((weird.order/max(weird.order))^2, 0, 0)
+plot(y.coord ~ x.coord, pch = 16, col = weird.colors, bty = 'n',
+     xlab = 'Horizontal Position', ylab = 'Vertical Position')
+```
 
 
 ## Software and De-Facto Standards
@@ -327,6 +376,7 @@ axis(3, at = 1:2, tick = FALSE, labels = paste0('mean = ', round(means, 3),
     - But not "these" statistics
     - Allowed time to learn on the job
 - Saw connections between policy and real-world science
+- Less research
 
 
 # References
