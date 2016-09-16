@@ -21,6 +21,7 @@ output:
 knitr::opts_chunk$set(cache=TRUE, echo=FALSE, warning=FALSE, message=FALSE,
   fig.width=10, fig.height=6, dpi=150, fig.align='center',
   dev.args=list(family='serif', pointsize=21, bg = '#f7f2d300'))
+library(EnvStats)
 ```
 
 
@@ -133,7 +134,10 @@ knitr::opts_chunk$set(cache=TRUE, echo=FALSE, warning=FALSE, message=FALSE,
 
 - Regulators/risk assessors want to be "protective"
 - Prefer to overestimate mean contamination concentration
+- Testing mean -- Reject $H_0 \iff$ UCL > Action Level
 - 95% UCL is a conservative estimate
+<!-- Assuming your sample is typical, UCL could be the average of a sample of
+large values. -->
 
 
 ## Upper Confidence Limits {data-transition="fade"}
@@ -191,7 +195,119 @@ curve(dnorm(x, exp(3.125), sqrt(exp(6.25)*(exp(0.25)-1)/10)), n = 1001,
 ```
 
 
+## Computing (1-$\alpha$)100% UCLs
+
+### Normal UCL
+
+$$\bar{x}+z_\alpha\frac{s}{\sqrt{n}}$$
+
+### $t$ UCL
+
+$$\bar{x}+t_{n-1,\alpha}\frac{s}{\sqrt{n}}$$
+
+### Chebyshev UCL
+
+$$\bar{x}+\sqrt{\frac{1}{\alpha}-1}\frac{s}{\sqrt{n}}$$
+[@singh97]
+
+
+## Computing (1-$\alpha$)100% UCLs
+
+- Many others have been proposed
+    - Lognormal
+    - Gamma
+    - Skew-adjusted normal/$t$
+    - Bootstrap
+
+
+## Example
+
+Groundwater aluminium concentrations from Naval Construction Battalion Center,
+RI [@singh02]
+
+- 290, 113, 264, 2660, 586, 71, 527, 163, 107,
+  71, 5920, 979, 2640, 164, 3560, 13200, 125
+- Mean: 1849.41
+- Std. Dev.: 3351.27
+
+| UCL                  |   Value |
+|:--------------------:|--------:|
+| Normal               | 3186.47 |
+| $t$                  | 3268.22 |
+| Skew-adjusted normal | 3675.94 |
+| Chebyshev            | 5482.64 |
+| Lognormal            | 9102.73 |
+
+
+## Which UCL Should I Use?
+
+- Lots of confusing guidance
+- Based on coverage rate, ignore bias and variance
+- Error-prone goodness-of-fit tests
+
+
+## Which UCL Should I Use?
+
+![plot of underestimation rate vs bias](images/underbias.png)
+
+
 ## Non-Detects
+
+- Data come form chemical analyses
+- Labs censor values below a detection limit (DL)
+- Report DL instead of result -- We don't have real numbers!
+
+
+## Problems Estimating Variability
+
+```{r nd1}
+set.seed(317)
+fake1 <- rgamma(20, 10, 2)
+set.seed(5316)
+df <-data.frame(Concentration = c(fake1, ifelse(fake1 < 4, 4, fake1)),
+                Sample = rep(1:2, each = 20) + rep(runif(20, -0.2, 0.2), 2),
+                cens = c(rep(FALSE, 20), (fake1 < 4)))
+means <- tapply(df$Concentration, ifelse(df$Sample < 1.5, 'Raw', 'Censored'),
+                mean)[c('Raw', 'Censored')]
+sds <- tapply(df$Concentration, ifelse(df$Sample < 1.5, 'Raw', 'Censored'),
+              sd)[c('Raw', 'Censored')]
+ucls <- means + qt(0.95, 19) * sds / sqrt(20)
+par(mar = c(4.1, 4.1, 4.1, 4.1), bty = 'n')
+plot(Concentration ~ Sample, data = df,
+     pch = ifelse(df$cens, 6, 19), col = ifelse(df$cens, 'red', 'blue'),
+     xlim = c(0.5, 2.5), xaxt = 'n')
+axis(1, at = 1:2, labels = c('Raw', 'Censored'))
+axis(3, at = 1:2, tick = FALSE, labels = paste0('mean = ', round(means, 3),
+                                                '\nsd = ', round(sds, 3),
+                                                '\nt-UCL = ', round(ucls, 3)))
+```
+
+
+## Accounting for Non-Detects
+
+- Several MLEs
+    - Must assume a distribution
+- One decent nonparametric method
+    - Debate about implementation
+- Non-detects really a data quality issue
+
+
+## Detection Limits are Complicated
+
+
+## Software and De-Facto Standards
+
+- ProUCL developed by EPA [@proucl]
+    - Developers involved in most UCL simulation studies
+- Visual Sample Plan developed by PNNL [@vsp]
+    - Funded by DOE
+- Handful of R packages
+
+
+## ProUCL
+
+
+## VSP
 
 
 # Thoughts on Internships
