@@ -355,8 +355,12 @@ plot(y.coord ~ x.coord, pch = 16, col = weird.colors, bty = 'n',
 
 ## ProUCL
 
+![ProUCL screenshot](images/proucl.png)
+
 
 ## VSP
+
+![VSP screenshot](images/vsp.png)
 
 
 # Thoughts on Internships
