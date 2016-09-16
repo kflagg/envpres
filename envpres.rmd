@@ -306,8 +306,12 @@ axis(3, at = 1:2, tick = FALSE, labels = paste0('mean = ', round(means, 3),
 
 ## ProUCL
 
+![ProUCL screenshot](images/proucl.png)
+
 
 ## VSP
+
+![VSP screenshot](images/vsp.png)
 
 
 # Thoughts on Internships
