@@ -1,0 +1,219 @@
+---
+title: "In the Field: A Crash Course in Environmental Statistics"
+author: "Kenneth A. Flagg"
+bibliography: references.bib
+output:
+  revealjs::revealjs_presentation:
+    fig_height: 6
+    fig_width: 10
+    fig_crop: FALSE
+    height: "960px"
+    width: "720px"
+    theme: "beige"
+    css: "custom.css"
+    transition: "slide"
+    incremental: TRUE
+    self_contained: TRUE
+---
+
+
+```{r setup, cache=FALSE, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(cache=TRUE, echo=FALSE, warning=FALSE, message=FALSE,
+  fig.width=10, fig.height=6, dpi=150, fig.align='center',
+  dev.args=list(family='serif', pointsize=21, bg = '#f7f2d300'))
+```
+
+
+# Introduction
+
+
+## Neptune & Company
+
+- Internship at Lakewood, CO office
+- Consulting firm, founded 1992
+    - Environmental Statisics
+    - Bayesian decision theory/risk management
+- About 50 employees around the US
+- Origins with EPA
+
+
+## Overview
+
+- Colorado
+- Work at Neptune
+- Some Environmental Statistics Topics
+- Thoughts on Internships
+
+
+# Colorado
+
+
+## Mt Bierstadt
+
+![snowy mountains](images/IMGP3946.jpg)
+
+
+## Geneva City
+
+![dilapidated shack](images/IMGP4063.jpg)
+
+
+## A Local
+
+![marmot](images/IMGP3966.jpg)
+
+
+# Work at Neptune
+
+
+## Projects
+
+- Environmental risk assessment
+<!-- Usually deterministic because of guidance -->
+- Mathematical modeling
+- Radiological performance assessment
+- Unexploded ordnance cleanup
+- Sampling plans
+- Web-based analysis and visualization tools
+
+
+## A Few Sites
+
+- Hanford Site
+<!-- produced putoneum for nuclear weapons, now being monitored/cleaned/closed -->
+- Los Alamos National Lab
+- Nevada Test Site
+<!-- Radiological exposure risk assessment for workers near nuclear test site -->
+- Helena Valley
+
+
+## My Job -- Statistics Intern
+
+- Assist PhD statisticians
+    - Analyze/plot data
+    - Sampling plans
+    - Writups
+- Statistical methods paper
+- Assist with Visual Sample Plan software
+- Input on workflow/project organization
+
+
+## Anatomy of an Environmental Cleanup
+
+- Statistics are just one small piece
+- 80-page risk assessment becomes Appendix D of 500-page report
+- Reports done in MS Word
+
+
+## Anatomy of an Environmental Cleanup {data-transition="fade"}
+
+![project organization](images/diag1.png)
+
+## Anatomy of an Environmental Cleanup {data-transition="none"}
+
+![project organization](images/diag2.png)
+
+## Anatomy of an Environmental Cleanup {data-transition="none"}
+
+![project organization](images/diag3.png)
+
+## Anatomy of an Environmental Cleanup {data-transition="none"}
+
+![project organization](images/diag4.png)
+
+## Anatomy of an Environmental Cleanup {data-transition="none"}
+
+![project organization](images/diag5.png)
+
+
+# Some Environmental Statistics Topics
+
+
+## Upper Confidence Limits
+
+- Regulators/risk assessors want to be "protective"
+- Prefer to overestimate mean contamination concentration
+- 95% UCL is a conservative estimate
+
+
+## Upper Confidence Limits {data-transition="fade"}
+
+```{r uclex1}
+curve(dlnorm(x, 3, 0.5), from = 0, to = 100, bty = 'n', yaxt = 'n', n = 1001,
+      main = 'Lognormal(3, 0.05) Density, mean = 22.76', xlab = '', ylab = '',
+      ylim = c(0, 0.11))
+```
+
+## Upper Confidence Limits {data-transition="none"}
+
+```{r uclex2}
+set.seed(32521)
+avgs <- replicate(10000, mean(rlnorm(10, 3, 0.5)))
+hist(avgs, freq = FALSE, breaks = 100, border = 'darkgrey', col = 'lightgrey',
+     bty = 'n', yaxt = 'n', main = 'Distribution of Sample Average, n = 10',
+     xlab = '', ylab = '', xlim = c(0, 100), ylim = c(0, 0.11))
+curve(dlnorm(x, 3, 0.5), from = 0, to = 100,n = 1001, add = TRUE)
+```
+
+## Upper Confidence Limits {data-transition="none"}
+
+```{r uclex3}
+hist(avgs, freq = FALSE, breaks = 100, border = 'darkgrey', col = 'lightgrey',
+     bty = 'n', yaxt = 'n', main = 'True Mean and 95% UCL of the Mean',
+     xlab = '', ylab = '', xlim = c(0, 100), ylim = c(0, 0.11))
+curve(dlnorm(x, 3, 0.5), from = 0, to = 100,n = 1001, add = TRUE)
+abline(v = c(exp(3+0.5^3), quantile(avgs, 0.95)), col = c('blue', 'red'), lwd = 2)
+```
+
+## Upper Confidence Limits {data-transition="none"}
+
+```{r uclex4}
+hist(avgs, freq = FALSE, breaks = 100, border = 'darkgrey', col = 'lightgrey',
+     bty = 'n', yaxt = 'n', main = 'Normal Approximation',
+     xlab = '', ylab = '', xlim = c(0, 100), ylim = c(0, 0.11))
+curve(dlnorm(x, 3, 0.5), from = 0, to = 100,n = 1001, add = TRUE)
+abline(v = c(exp(3+0.5^3), quantile(avgs, 0.95)), col = c('blue', 'red'), lwd = 2)
+curve(dnorm(x, exp(3.125), sqrt(exp(6.25)*(exp(0.25)-1)/10)), n = 1001,
+      col = 'darkblue', lwd = 2, add = TRUE)
+```
+
+## Upper Confidence Limits {data-transition="none"}
+
+```{r uclex5}
+hist(avgs, freq = FALSE, breaks = 100, border = 'darkgrey', col = 'lightgrey',
+     bty = 'n', yaxt = 'n', main = '95th Normal Percentile',
+     xlab = '', ylab = '', xlim = c(0, 100), ylim = c(0, 0.11))
+curve(dlnorm(x, 3, 0.5), from = 0, to = 100,n = 1001, add = TRUE)
+abline(v = c(exp(3+0.5^3), quantile(avgs, 0.95), qnorm(0.95, mean(avgs), sd(avgs))),
+       col = c('blue', 'red', 'maroon'), lwd = 2)
+curve(dnorm(x, exp(3.125), sqrt(exp(6.25)*(exp(0.25)-1)/10)), n = 1001,
+      col = 'darkblue', lwd = 2, add = TRUE)
+```
+
+
+## Non-Detects
+
+
+# Thoughts on Internships
+
+
+## A "Real Job"
+
+- More money
+- Less work
+- Weekends!
+
+
+## A Different Learning Experience
+
+<!-- As an intern, -->
+- Expected to know statistics
+    - But not "these" statistics
+    - Allowed time to learn on the job
+- Saw connections between policy and real-world science
+
+
+# References
+
+
+## References
