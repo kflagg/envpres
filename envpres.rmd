@@ -136,7 +136,7 @@ library(EnvStats)
 - Regulators/risk assessors want to be "protective"
 - Prefer to overestimate mean contamination concentration
 - Testing mean -- Reject $H_0 \iff$ UCL > Action Level
-- 95% UCL is a conservative estimate
+- 95% UCL is a conservative estimate [@ragsa]
 <!-- Assuming your sample is typical, UCL could be the average of a sample of
 large values. -->
 

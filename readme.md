@@ -114,7 +114,7 @@ Upper Confidence Limits
 -   Regulators/risk assessors want to be "protective"
 -   Prefer to overestimate mean contamination concentration
 -   Testing mean -- Reject \(H_0 \iff\) UCL &gt; Action Level
--   95% UCL is a conservative estimate <!-- Assuming your sample is typical, UCL could be the average of a sample of
+-   95% UCL is a conservative estimate (EPA 1989) <!-- Assuming your sample is typical, UCL could be the average of a sample of
     large values. -->
 
 Upper Confidence Limits
@@ -284,7 +284,9 @@ References
 References
 ----------
 
-EPA. 2016. *ProUCL Version 5.1.002, Statistical Software for Environmental Applications for Data Sets with and Without Nondetect Observations*. United States Environmental Protection Agency. <https://www.epa.gov/land-research/proucl-software>.
+EPA. 1989. “Risk Assessment Guidance for Superfund. Volume I: Human Health Evaluation Manual (Part a).” EPA/540/1-89/002. United States Environmental Protection Agency.
+
+———. 2016. *ProUCL Version 5.1.002, Statistical Software for Environmental Applications for Data Sets with and Without Nondetect Observations*. United States Environmental Protection Agency. <https://www.epa.gov/land-research/proucl-software>.
 
 Helsel, Dennis R. 2011. *Statistics for Censored Environmental Data Using Minitab and R*. Vol. 77. John Wiley & Sons.
 
